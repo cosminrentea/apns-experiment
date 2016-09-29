@@ -1,12 +1,26 @@
 package main
 
 import (
+	"fmt"
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
+	"github.com/smancke/guble/protocol"
+	"github.com/smancke/guble/server"
 	"log"
 )
 
+func init() {
+	server.AfterMessageDelivery = func(m *protocol.Message) {
+		fmt.Print("message delivered")
+	}
+}
+
 func main() {
+
+	server.Main()
+
+	// code not reachable here
+
 	cert, pemErr := certificate.FromP12File("development-certificate.p12", "")
 	if pemErr != nil {
 		log.Println("Certificate Error:", pemErr)
