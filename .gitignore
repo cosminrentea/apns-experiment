@@ -22,3 +22,6 @@ _testmain.go
 *.exe
 *.test
 *.prof
+.idea/
+apns-experiment
+development-certificate.p12
