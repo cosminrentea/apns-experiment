@@ -17,9 +17,7 @@ func init() {
 
 func main() {
 
-	server.Main()
-
-	// code not reachable here
+	// server.Main()
 
 	cert, pemErr := certificate.FromP12File("development-certificate.p12", "")
 	if pemErr != nil {
