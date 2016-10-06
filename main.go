@@ -19,21 +19,21 @@ func main() {
 
 	// server.Main()
 
-	cert, pemErr := certificate.FromP12File("development-certificate.p12", "")
-	if pemErr != nil {
-		log.Println("Certificate Error:", pemErr)
+	cert, errCert := certificate.FromP12File("development-certificate.p12", "WeLoveApple")
+	if errCert != nil {
+		log.Println("Certificate Error: ", errCert)
 	}
 
 	notification := &apns.Notification{}
-	notification.DeviceToken = "11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"
-	notification.Topic = "APNS Test"
-	notification.Payload = []byte(`{"aps":{"alert":"Hello!"}}`)
+	notification.DeviceToken = "dgELOSlqfW0:APA91bHxaLpeQzqKyDecIWKLahLhe_H2vPCqIxpqAqOR7FQWTV-QeNRuPCtLNFnrlwMTiAWGyhwQji5G5FuqvQ0V7qPgDSaTBybdSJdg21ss2613tflHLA3QJWuBDNU1n9KmpqixfhOV"
+	notification.Topic = "com.rewe.iosapp"
+	notification.Payload = []byte(`{"aps":{"alert":"Hello from guble team, using APNS!"}}`)
 
 	client := apns.NewClient(cert).Development()
-	res, err := client.Push(notification)
-	if err != nil {
-		log.Println("Error:", err)
+	res, errPush := client.Push(notification)
+	if errPush != nil {
+		log.Println("Error:", errPush)
 		return
 	}
-	log.Println("APNs ID:", res.ApnsID)
+	log.Println("APNS ID:", res.ApnsID)
 }
