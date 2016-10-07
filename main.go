@@ -14,11 +14,11 @@ import (
 
 const (
 	defaultCertFileName = "development-certificate.p12"
-	msgAPSNNotSent      = "APNS notification was not sent"
+	msgAPNSNotSent = "APNS notification was not sent"
 )
 
 var (
-	errAPSNNotSent      = errors.New(msgAPSNNotSent)
+	errAPSNNotSent      = errors.New(msgAPNSNotSent)
 )
 
 func init() {
@@ -27,31 +27,22 @@ func init() {
 	}
 }
 
-type APNSConfig struct {
-	CertFileName string
-	CertPassword string
-}
-
 func main() {
 
 	// server.Main()
 
-	cfg := &APNSConfig{
-		CertFileName: defaultCertFileName,
-		CertPassword: os.Getenv("APNS_CERT_PASSWORD"),
-	}
 	topic := os.Getenv("APNS_TOPIC")
 	deviceToken := os.Getenv("APNS_DEVICE_TOKEN")
-	cl := getAPNSClient(cfg, false)
+	cl := getAPNSClient(defaultCertFileName, os.Getenv("APNS_CERT_PASSWORD"), false)
 	p := payload.NewPayload().
 		AlertTitle("REWE Sonderrabatt").
-		AlertBody("Sie haben ein Sonderrabatt von 50% für das neue iPhone 8 bekommen!").
+		AlertBody("Sie haben ein Sonderrabatt von 60% für das neue iPhone 8 bekommen!").
 		ContentAvailable()
 	sendAPNSNotification(cl, topic, deviceToken, p)
 }
 
-func getAPNSClient(cfg *APNSConfig, production bool) *apns.Client {
-	cert, errCert := certificate.FromP12File(cfg.CertFileName, cfg.CertPassword)
+func getAPNSClient(certFileName, certPassword, production bool) *apns.Client {
+	cert, errCert := certificate.FromP12File(certFileName, certPassword)
 	if errCert != nil {
 		log.WithError(errCert).Error("APNS certificate error")
 	}
@@ -74,7 +65,7 @@ func sendAPNSNotification(cl *apns.Client, topic string, deviceToken string, p *
 		return errPush
 	}
 	if !response.Sent() {
-		log.WithField("id", response.ApnsID).Error(msgAPSNNotSent)
+		log.WithField("id", response.ApnsID).Error(msgAPNSNotSent)
 		return errAPSNNotSent
 	}
 	log.WithField("id", response.ApnsID).Debug("APNS notification successfully sent")
