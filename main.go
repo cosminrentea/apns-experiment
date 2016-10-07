@@ -64,5 +64,9 @@ func sendAPNSNotification(c APNSConfig, deviceToken string, p *payload.Payload) 
 		log.WithError(errPush).Error("APNS error when pushing notification")
 		return
 	}
-	log.WithField("id", response.ApnsID).Debug("sent APNS notification")
+	if response.Sent() {
+		log.WithField("id", response.ApnsID).Debug("APNS notification successfully sent")
+	} else {
+		log.WithField("id", response.ApnsID).Error("APNS notification was not sent")
+	}
 }
