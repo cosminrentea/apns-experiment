@@ -2,11 +2,17 @@ package main
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	apns "github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/certificate"
+	"github.com/sideshow/apns2/payload"
 	"github.com/smancke/guble/protocol"
 	"github.com/smancke/guble/server"
-	"log"
+	"os"
+)
+
+const (
+	defaultCertFileName = "development-certificate.p12"
 )
 
 func init() {
@@ -15,25 +21,48 @@ func init() {
 	}
 }
 
+type APNSConfig struct {
+	CertFileName string
+	CertPassword string
+	Topic        string
+}
+
 func main() {
 
 	// server.Main()
 
-	cert, errCert := certificate.FromP12File("development-certificate.p12", "WeLoveApple")
+	cfg := APNSConfig{
+		CertFileName: defaultCertFileName,
+		CertPassword: os.Getenv("APNS_CERT_PASSWORD"),
+		Topic:        os.Getenv("APNS_TOPIC"),
+	}
+	deviceToken := os.Getenv("APNS_DEVICE_TOKEN")
+
+	p := payload.NewPayload().
+		AlertTitle("REWE Sonderrabatt").
+		AlertBody("Sie haben ein Sonderrabatt von 50% für das neue iPhone 8 bekommen!").
+		ContentAvailable()
+
+	sendAPNSNotification(cfg, deviceToken, p)
+}
+
+func sendAPNSNotification(c APNSConfig, deviceToken string, p *payload.Payload) {
+	cert, errCert := certificate.FromP12File(c.CertFileName, c.CertPassword)
 	if errCert != nil {
-		log.Println("Certificate Error: ", errCert)
+		log.WithError(errCert).Error("APNS certificate error")
 	}
 
 	notification := &apns.Notification{}
-	notification.DeviceToken = "dgELOSlqfW0:APA91bHxaLpeQzqKyDecIWKLahLhe_H2vPCqIxpqAqOR7FQWTV-QeNRuPCtLNFnrlwMTiAWGyhwQji5G5FuqvQ0V7qPgDSaTBybdSJdg21ss2613tflHLA3QJWuBDNU1n9KmpqixfhOV"
-	notification.Topic = "com.rewe.iosapp"
-	notification.Payload = []byte(`{"aps":{"alert":"Hello from guble team, using APNS!"}}`)
+	notification.Priority = apns.PriorityHigh
+	notification.Topic = c.Topic
+	notification.DeviceToken = deviceToken
+	notification.Payload = p
 
 	client := apns.NewClient(cert).Development()
-	res, errPush := client.Push(notification)
+	response, errPush := client.Push(notification)
 	if errPush != nil {
-		log.Println("Error:", errPush)
+		log.WithError(errPush).Error("APNS error when pushing notification")
 		return
 	}
-	log.Println("APNS ID:", res.ApnsID)
+	log.WithField("id", response.ApnsID).Debug("sent APNS notification")
 }
