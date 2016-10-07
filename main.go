@@ -41,7 +41,7 @@ func main() {
 	sendAPNSNotification(cl, topic, deviceToken, p)
 }
 
-func getAPNSClient(certFileName, certPassword, production bool) *apns.Client {
+func getAPNSClient(certFileName string, certPassword string, production bool) *apns.Client {
 	cert, errCert := certificate.FromP12File(certFileName, certPassword)
 	if errCert != nil {
 		log.WithError(errCert).Error("APNS certificate error")
