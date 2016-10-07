@@ -15,6 +15,9 @@ import (
 const (
 	defaultCertFileName = "development-certificate.p12"
 	msgAPSNNotSent      = "APNS notification was not sent"
+)
+
+var (
 	errAPSNNotSent      = errors.New(msgAPSNNotSent)
 )
 
@@ -33,7 +36,7 @@ func main() {
 
 	// server.Main()
 
-	cfg := APNSConfig{
+	cfg := &APNSConfig{
 		CertFileName: defaultCertFileName,
 		CertPassword: os.Getenv("APNS_CERT_PASSWORD"),
 	}
