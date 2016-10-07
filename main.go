@@ -35,7 +35,7 @@ func main() {
 	deviceToken := os.Getenv("APNS_DEVICE_TOKEN")
 	cl := getAPNSClient(defaultCertFileName, os.Getenv("APNS_CERT_PASSWORD"), false)
 	p := payload.NewPayload().
-		AlertTitle("REWE Sonderrabatt").
+		AlertTitle("Sonderrabatt").
 		AlertBody("Sie haben ein Sonderrabatt von 60% für das neue iPhone 8 bekommen!").
 		ContentAvailable()
 	sendAPNSNotification(cl, topic, deviceToken, p)
